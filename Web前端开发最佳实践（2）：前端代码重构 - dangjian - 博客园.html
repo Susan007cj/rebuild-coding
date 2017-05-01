@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)http://www.cnblogs.com/dangjian/p/4233049.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/bundle-iMetro_HD.css">
+<link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/bundle-iMetro_HD-mobile.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/dangjian/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/dangjian/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/dangjian/wlwmanifest.xml">
+<script async="" src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/analytics.js.下载"></script><script src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/jquery.js.下载" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'dangjian', cb_enable_mathjax=false;var isLogined=false;</script>
+<script src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/blog-common.js.下载" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/dangjian/"><img id="blogLogo" src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/dangjian/">党建</a></h1>
+<h2></h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li></li>
+<li><a id="blog_nav_myhome" class="menu" href="http://www.cnblogs.com/dangjian/">首页</a></li>
+<li><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/dangjian">联系</a></li>
+<li><a id="blog_nav_rss" class="menu" href="http://www.cnblogs.com/dangjian/rss">订阅</a>
+<!--<a id="blog_nav_rss_image" class="aHeaderXML" href="http://www.cnblogs.com/dangjian/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/dangjian/p/4233049.html">Web前端开发最佳实践（2）：前端代码重构</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body" class="cnblogs-markdown"><h2 id="前言">前言</h2>
+<p>代码重构是业内经常讨论的一个热门话题，重构指的是在不改变代码外部行为的情况下进行源代码修改，所以重构之前需要考虑的是重构后如何才能保证外部行为不改变。对于后端代码来说，可以通过大量的自动化测试来确保重构后的代码逻辑，可对于普遍缺乏自动化测试的前端代码来说，重构之前一定要考虑再三才能下手。</p>
+<h2 id="有效地重构代码">有效地重构代码</h2>
+<p>我曾经有一次不算太成功的前端重构经历，所幸的是没有导致太大的问题，但教训是惨痛的。此次重构的项目本身没有足够的自动化测试，尤其是针对前端的自动化测试，所以在重构之前也预想到了重构的风险。先来介绍重构之前项目存在的问题：项目的前端代码没有统一的规范，所以不同人开发的模块对应的代码风格完全不同，即使有相同的逻辑也是由完全不同的代码实现的；而且，不同模块的代码写到了相同的代码文件中，使得文件的代码量很大；项目的功能较多，所以前端代码量大，代码的文件也多，又由于需求变更频繁，所以代码中的无用代码量多；网站首页加载时间过长，平均加载时间超过5秒；部分动态模块的加载会导致页面假死。总体来说项目代码存在的问题就是维护性差和性能差，如果要持续地添加新功能就有必要重构现有的代码。</p>
+<p>鉴于项目代码的实际情况，并且考虑到缺乏足够的自动化测试，所以我权衡了又权衡，最终决定先尝试对前端的部分代码进行重构，重构的过程主要分为如下几个步骤：</p>
+<h3 id="删除无用代码精简代码">（1）删除无用代码，精简代码。</h3>
+<p>无用的代码主要集中在CSS和JavaScript文件中，包括已经不起作用的CSS样式和废弃的JavaScript函数。这个重构过程是最吃力不讨好的过程，修改的过程需要小心翼翼，不停地查看函数和变量在上下文的调用关系，以免错删代码。总体来说，这个阶段的重构还是利大于弊，虽然后续发现了一些由于误删而导致的Bug，但是删除了废弃的代码，提高了后续的可维护性。</p>
+<h3 id="前端代码规范化">（2）前端代码规范化。</h3>
+<p>页面的HTML标签中还有大量的内联CSS样式，有些页面的head部分也有CSS样式，需要把这些CSS放到独立的文件中；调整代码的层次缩进格式，不同层级按照4个空格来缩进；更改标准已不推荐的标签，如<code>&lt;center&gt;</code> <code>&lt;b&gt;</code>等，改为由CSS样式控制；统一命名规则，这里主要涉及HTML中的id和class名称；另外，在JavaScript中集中定义局部变量，并把部分全局变量转变为局部变量，缩小了变量的作用域。</p>
+<h3 id="整理基础类库">（3）整理基础类库。</h3>
+<p>网站初期为了加快开发的进度而引入了多个框架，其中包括Extjs、JQuery以及多个JQuery插件。Extjs和JQuery中重复的功能较多，项目中很多相同的实现使用的是不同类库中的功能，如：DOM选择、Ajax请求等。部分jQuery的UI插件的功能也和Extjs中的功能重复。鉴于项目的状况，只能保守选择同时保留Extjs和jQuery。重构的内容是统一UI插件的使用、统一基础方法的使用。</p>
+<h3 id="前端代码模块化">（4）前端代码模块化。</h3>
+<p>按照模块归类CSS代码，放到模块对应的单独CSS文件中；按照模块分离JavaScript代码，按照模块定义不同的命名空间；将JavaScript代码中的公共方法归类到独立的的共通文件中，同时引入面向对象的思想重构JavaScript代码，进一步明确公有接口和私有接口。</p>
+<h3 id="提高页面加载性能">（5）提高页面加载性能。</h3>
+<p>将部分不影响首页展示的JavaScript文件延迟到页面加载后加载；删除页面中初始隐藏的区域，改为通过JavaScript按需动态生成；页面中的部分图片延迟加载；调整CSS和JavaScript文件的引用顺序，即CSS在前JavaScript在后；给静态文件设置缓存；使用CSS Sprite，合并首页背景图；合并和压缩发布后的CSS和JavaScript代码文件。</p>
+<p>从如上的重构内容可以看到，这次重构的目的是明确的，即提高前端代码的可维护性和性能。从中也暴露了一些重构过程中的问题：最主要的问题还是低估了重构的风险，导致后续发现了不少新bug；没有足够的自动化测试，而贸然去修改代码，很难保证最终修改代码的正确性；其次是对于性能优化，事先没有量化，没有做任何性能方面的监控，没有抓住性能主要的瓶颈，所以性能部分的重构就显得盲目。</p>
+<p>有了这次的重构实践经历加上学习业内的一些经验，我归纳了如下的前端重构最佳实践：</p>
+<ul>
+<li>重构前一定要预估风险，如果没有足够的自动化测试，最好是先完善自动化测试代码。</li>
+<li>重构的目的和范围要明确，切忌盲目修改。前端代码的重构目的主要是提高代码的可维护性、可读性和性能。</li>
+<li>最好是先易后难，循序渐进。先修改诸如命名、格式等不涉及具体逻辑的内容，然后再考虑模块化和性能提升等与具体逻辑相关的内容。</li>
+<li>重构过程中要持续测试，在多个浏览器中测试，确保重构的部分功能正确。切忌在大量重构后再进行测试，因为大量重构后基本很难记得重构的逻辑，也就有可能遗漏部分测试用例。</li>
+<li>如果是性能提升，要事先检测网站的整体性能并量化，找出性能瓶颈。重构过程中要持续监控性能，并对比性能提升的效果。</li>
+</ul>
+<h2 id="附录">附录</h2>
+<ul>
+<li><a href="http://www.cnblogs.com/dangjian/p/4228313.html">Web前端开发最佳实践（1）：前端开发概述</a></li>
+<li><a href="http://www.cnblogs.com/dangjian/p/4233049.html">Web前端开发最佳实践（2）：前端代码重构</a></li>
+<li><a href="http://www.cnblogs.com/dangjian/p/4233049.html">Web前端开发最佳实践（3）：前端代码和资源的压缩与合并</a></li>
+<li><a href="http://www.cnblogs.com/dangjian/p/4235505.html">Web前端开发最佳实践（4）：在页面中添加必要的meta信息</a></li>
+<li><a href="http://www.cnblogs.com/dangjian/p/4238150.html">Web前端开发最佳实践（5）：正确闭合HTML标签，停止使用不标准的标签和属性</a></li>
+<li><a href="http://www.cnblogs.com/dangjian/p/4249205.html">Web前端开发最佳实践（6）：过时的块状元素和行内元素</a></li>
+<li><a href="http://www.cnblogs.com/dangjian/p/4268463.html">Web前端开发最佳实践（7）：使用合理的技术方案来构建小图标</a></li>
+</ul>
+</div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/dangjian/category/260655.html" target="_blank">HTML5</a>,<a href="http://www.cnblogs.com/dangjian/category/252276.html" target="_blank">Javascript</a>,<a href="http://www.cnblogs.com/dangjian/category/252281.html" target="_blank">编程交流</a>,<a href="http://www.cnblogs.com/dangjian/category/252279.html" target="_blank">编程思想</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(4233049,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;487f3d0b-63cf-dd11-9e4d-001cf0cd104b&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/dangjian/" target="_blank"><img src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/20150220023008.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/dangjian/">dangjian</a><br>
+            <a href="http://home.cnblogs.com/u/dangjian/followees">关注 - 6</a><br>
+            <a href="http://home.cnblogs.com/u/dangjian/followers">粉丝 - 95</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;487f3d0b-63cf-dd11-9e4d-001cf0cd104b&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(4233049,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">4</span>
+    </div>
+    <div class="buryit" onclick="votePost(4233049,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/dangjian/p/4228313.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/dangjian/p/4228313.html" title="发布于2015-01-16 12:13">Web前端开发最佳实践（1）：前端开发概述</a><br><a href="http://www.cnblogs.com/dangjian/p/4235112.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/dangjian/p/4235112.html" title="发布于2015-01-20 01:10">Web前端开发最佳实践（3）：前端代码和资源的压缩与合并</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2015-01-19 09:52</span> <a href="http://www.cnblogs.com/dangjian/">dangjian</a> 阅读(<span id="post_view_count">2807</span>) 评论(<span id="post_comment_count">2</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=4233049" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/dangjian/p/4233049.html#" onclick="AddToWz(4233049);return false;">收藏</a></div>
+	</div>
+	<script src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/highlight.min.js.下载"></script><script>markdown_highlight();</script><script type="text/javascript">var allowComments=true,cb_blogId=29497,cb_entryId=4233049,cb_blogApp=currentBlogApp,cb_blogUserGuid='487f3d0b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2015/1/19 9:52:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/dangjian/p/4233049.html#3354117" class="layer">#1楼</a><a name="3354117" id="comment_anchor_3354117"></a>  <span class="comment_date">2016-01-26 09:54</span> <a id="a_comment_author_3354117" href="http://www.cnblogs.com/catroll/" target="_blank">CatRoll</a> <a href="http://msg.cnblogs.com/send/CatRoll" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3354117" class="blog_comment_body">第 3 篇的链接错了，和第 2 篇一样~~~</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3354117,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3354117,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3354117_avatar" style="display:none;">http://pic.cnblogs.com/face/u348975.png?id=07183918</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/dangjian/p/4233049.html#3354257" class="layer">#2楼</a><a name="3354257" id="comment_anchor_3354257"></a>[<span class="louzhu">楼主</span>]<span id="comment-maxId" style="display:none;">3354257</span><span id="comment-maxDate" style="display:none;">2016/1/26 12:55:52</span>  <span class="comment_date">2016-01-26 12:55</span> <a id="a_comment_author_3354257" href="http://www.cnblogs.com/dangjian/" target="_blank">dangjian</a> <a href="http://msg.cnblogs.com/send/dangjian" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3354257" class="blog_comment_body"><a href="http://www.cnblogs.com/dangjian/p/4233049.html#3354117" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,3354117);">@</a>
+CatRoll<br>谢谢指正。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3354257,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3354257,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3354257_avatar" style="display:none;">http://pic.cnblogs.com/face/25937/20150220023008.png</span>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/dangjian/p/4233049.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/dangjian/p/4233049.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.gcpowertools.com.cn/products/activereports_casestudies.htm?utm_source=cnblogs&amp;utm_medium=blogpage&amp;utm_term=bottom&amp;utm_content=AR&amp;utm_campaign=community" target="_blank">【推荐】中铁、中石油等大型企业的复杂报表解决方案</a><br><a href="http://web.tanzhouedu.com/index/keCourse.html" target="_blank">【粉丝福利】Web前端基础到高级在线直播教学</a><br><a href="https://group.cnblogs.com/topic/76725.html" target="_blank">【福利】阿里云免费套餐升级，更多产品，更久时长</a><br></div>
+<div id="opt_under_post"></div>
+<div id="cnblogs_c1" class="c_ad_block"><a href="https://cn.udacity.com/course/machine-learning-engineer-nanodegree--nd009-cn-basic/?utm_source=cnblogs&amp;utm_medium=referral&amp;utm_campaign=MLND02" target="_blank"><img width="300" height="250" src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/24442-20170428090606178-1314916751.jpg" alt="udacity"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/568373/" target="_blank">Linux内核4.11发布</a><br> ·  <a href="http://news.cnblogs.com/n/568370/" target="_blank">谷歌科学家警告：机器人将让工作岗位大规模消失</a><br> ·  <a href="http://news.cnblogs.com/n/568362/" target="_blank">微信“五一”无现金出境报告：跨境消费主力转向香港泰国</a><br> ·  <a href="http://news.cnblogs.com/n/568361/" target="_blank">Uber要小心了！重金支持下的滴滴将会有更大野心</a><br> ·  <a href="http://news.cnblogs.com/n/568357/" target="_blank">微软不会再投一分钱！WP已名存实亡</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="cnblogs_c2" class="c_ad_block"><a href="http://click.aliyun.com/m/15483/" target="_blank"><img width="468" height="60" src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/24442-20170331150421570-489464769.jpg" alt="阿里云C2"></a></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/565901/" target="_blank">唱吧DevOps的落地，微服务CI/CD的范本技术解读</a><br> ·  <a href="http://kb.cnblogs.com/page/566523/" target="_blank">程序员，如何从平庸走向理想？</a><br> ·  <a href="http://kb.cnblogs.com/page/566318/" target="_blank">我为什么鼓励工程师写blog</a><br> ·  <a href="http://kb.cnblogs.com/page/566528/" target="_blank">怎么轻松学习JavaScript</a><br> ·  <a href="http://kb.cnblogs.com/page/509431/" target="_blank">如何打好前端游击战</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><div> <h2>作品上市</h2>
+<p><a href="http://blog.dang-jian.com/bestpractice" target="_blank"><img style="max-width: 100%" src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/zcover.jpg" alt="web前端开发最佳实践" width="150"></a>
+<br>
+<br>
+[1] <a href="http://product.china-pub.com/3770903" target="_blank">China-Pub</a>
+<br>
+[2] <a href="http://item.jd.com/11619844.html" target="_blank">京东</a>
+<br>
+[3] <a href="http://www.amazon.cn/Web%E5%BC%80%E5%8F%91%E6%8A%80%E6%9C%AF%E4%B8%9B%E4%B9%A6-Web%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5-%E5%85%9A%E5%BB%BA/dp/B00S4DLX8S/ref=sr_1_1?ie=UTF8&amp;qid=1421629078&amp;sr=8-1&amp;keywords=web%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5" target="_blank">亚马逊</a>
+<br>
+[4] <a href="http://spu.dangdang.com/1035437335.html" target="_blank">当当</a>
+<br>
+[5] <a href="http://detail.tmall.com/item.htm?spm=a230r.1.14.8.F2VRyG&amp;id=43430556886&amp;abbucket=14" target="_blank">淘宝</a>
+<br>
+<br>
+</p>
+<p>
+<a href="http://blog.dang-jian.com/" target="_blank">我的独立博客</a>
+<br>
+<br>
+<a href="http://www.github.com/dangjian" target="_blank">我的Github</a>
+<br>
+<br>
+<br>
+</p>
+</div>
+<iframe width="100%" height="550" class="share_self" frameborder="0" scrolling="no" src="./Web前端开发最佳实践（2）：前端代码重构 - dangjian - 博客园_files/index.html"></iframe><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/dangjian/">dangjian</a><br>园龄：<a href="http://home.cnblogs.com/u/dangjian/" title="入园时间：2007-09-20">9年7个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/dangjian/followers/">95</a><br>关注：<a href="http://home.cnblogs.com/u/dangjian/followees/">6</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="follow(&#39;487f3d0b-63cf-dd11-9e4d-001cf0cd104b&#39;)">+加关注</a></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block"></div><div id="sidebar_categories">
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/dangjian/p/4233049.html#3354257">1. Re:Web前端开发最佳实践（2）：前端代码重构</a></li>
+        <li class="recent_comment_body">@CatRoll谢谢指正。...</li>
+        <li class="recent_comment_author">--dangjian</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/dangjian/p/4233049.html#3354117">2. Re:Web前端开发最佳实践（2）：前端代码重构</a></li>
+        <li class="recent_comment_body">第 3 篇的链接错了，和第 2 篇一样~~~</li>
+        <li class="recent_comment_author">--CatRoll</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/dangjian/p/4476506.html#3242328">3. Re:【社区公益】送《Web前端开发最佳实践》给需要的人</a></li>
+        <li class="recent_comment_body">刚刚毕业，和朋友一起成立了工作室，在查找前端问题的时候翻到这里来了，前辈写的确实很实用，所以想再深入学习学习~谢谢~</li>
+        <li class="recent_comment_author">--百里喵喵</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/dangjian/p/4476506.html#3187008">4. Re:【社区公益】送《Web前端开发最佳实践》给需要的人</a></li>
+        <li class="recent_comment_body">刚毕业一年，之前一直做C#的CS。后来想了想，觉得应该尽快转BS，本来以为公司会给我们结果专门配前端，结果自欺欺人了，小公司，什么都要自己动手。你的 Web前端开发最佳实践（5）：正确闭合HTML标签......</li>
+        <li class="recent_comment_author">--LiuChunfu</li>
+        <li class="recent_comment_title"><a href="http://www.cnblogs.com/dangjian/p/4476506.html#3183033">5. Re:【社区公益】送《Web前端开发最佳实践》给需要的人</a></li>
+        <li class="recent_comment_body">好的谢谢</li>
+        <li class="recent_comment_author">--EX天亮以后</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/dangjian/archive/2010/09/07/1820241.html">1. Web程序员们，你准备好迎接HTML5了吗？(10400)</a></li><li><a href="http://www.cnblogs.com/dangjian/p/4228313.html">2. Web前端开发最佳实践（1）：前端开发概述(3292)</a></li><li><a href="http://www.cnblogs.com/dangjian/archive/2010/06/29/1767658.html">3. 对《30个提高Web程序执行效率的好经验》的理解(2816)</a></li><li><a href="http://www.cnblogs.com/dangjian/p/4233049.html">4. Web前端开发最佳实践（2）：前端代码重构(2808)</a></li><li><a href="http://www.cnblogs.com/dangjian/p/4299325.html">5. Web前端开发最佳实践（9）：CSS代码太太乱，重复代码太多？你需要精简CSS代码(2246)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/dangjian/archive/2010/09/07/1820241.html">1. Web程序员们，你准备好迎接HTML5了吗？(45)</a></li><li><a href="http://www.cnblogs.com/dangjian/p/4080489.html">2. 如何设计一个基于Node.js和Express的网站架构？(23)</a></li><li><a href="http://www.cnblogs.com/dangjian/p/4268463.html">3. Web前端开发最佳实践（7）：使用合理的技术方案来构建小图标(13)</a></li><li><a href="http://www.cnblogs.com/dangjian/p/4235505.html">4. Web前端开发最佳实践（4）：在页面中添加必要的meta信息(12)</a></li><li><a href="http://www.cnblogs.com/dangjian/p/4443734.html">5. Web前端开发最佳实践（13）：前端页面卡顿？可能是DOM操作惹的祸，你需要优化代码(10)</a></li></ul></div>
+</div>
+</div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2017 dangjian
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+<!--PageEndHtml Block Begin-->
+<script language="javascript">
+$(function(){
+$("input[name=article_support]").click(function(){
+$("textarea[class=comment_textarea]").val("文章不错，支持一下！");
+;
+});
+$("input[name=article_pass]").click(function(){
+$("textarea[class=comment_textarea]").val("飘过~~");
+;
+});
+});
+</script>
+<!--PageEndHtml Block End-->
+
+
+</body></html>
